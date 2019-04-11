@@ -1,0 +1,15 @@
+# Compiled cource #
+########################
+*.root
+*.xml
+*.com
+*.class
+*.dll
+
+# Packages #
+########################
+*.7z
+*.dmg
+*.gz
+*.zip
+*.jar
