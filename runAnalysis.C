@@ -1,14 +1,14 @@
 #if !defined(__CINT__) || defined (__CLING__)
 #include "AliAnalysisAlien.h"
 #include "AliAnalysisManager.h"
-#include "AliAODInputHandler.h"
+#include "AliESDInputHandler.h"
 #include "AliAnalysisTaskMyTask.h"
 #endif
 
 void runAnalysis()
 {
     // set if you want to run the analysis locally (kTRUE), or on grid (kFALSE)
-    Bool_t local = kFALSE;
+    Bool_t local = kTRUE;
     // if you run on grid, specify test mode (kTRUE) or full grid model (kFALSE)
     Bool_t gridTest = kFALSE;
     
@@ -16,18 +16,39 @@ void runAnalysis()
 #if !defined (__CINT__) || defined (__CLING__)
     gInterpreter->ProcessLine(".include $ROOTSYS/include");
     gInterpreter->ProcessLine(".include $ALICE_ROOT/include");
+    gInterpreter->ProcessLine(".include $ALICE_PHYSICS/include");
 #else
     gROOT->ProcessLine(".include $ROOTSYS/include");
     gROOT->ProcessLine(".include $ALICE_ROOT/include");
+    gROOT->ProcessLine(".include $ALICE_PHYSICS/include");
 #endif
-     
+  
+    gSystem->Load("libTree.so");
+    gSystem->Load("libGeom.so");
+    gSystem->Load("libVMC.so");
+    gSystem->Load("libSTEERBase.so");
+    gSystem->Load("libESD.so");
+    gSystem->Load("libAOD.so");
+
+  // load analysis framework
+  //   gSystem->Load("libANALYSIS");
+  //     gSystem->Load("libANALYSISalice");
+  //
     // create the analysis manager
     AliAnalysisManager *mgr = new AliAnalysisManager("AnalysisTaskExample");
-    AliAODInputHandler *aodH = new AliAODInputHandler();
-    mgr->SetInputEventHandler(aodH);
+    AliESDInputHandler* esdH = new AliESDInputHandler();
+    mgr->SetInputEventHandler(esdH);
 
 
+#if !defined (__CINT__) || defined (__CLING__)
+    AliAnalysisTaskMyTask *task = reinterpret_cast<AliAnalysisTaskMyTask*>();
+    gInterpreter->ExecuteMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
+#else
+    gROOT->LoadMacro("\$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
+    AddTaskPIDResponse(); // *
+#endif
 
+       
     // compile the class and load the add task macro
     // here we have to differentiate between using the just-in-time compiler
     // from root6, or the interpreter of root5
@@ -48,11 +69,12 @@ void runAnalysis()
 
     if(local) {
         // if you want to run locally, we need to define some input
-        TChain* chain = new TChain("aodTree");
+        TChain* chain = new TChain("esdTree");
         // add a few files to the chain (change this so that your local files are added)
-        chain->Add("AliAOD.root");
-        // start the analysis locally, reading the events from the tchain
-        mgr->StartAnalysis("local", chain);
+        //chain->Add("DigitsExtractQA.root");
+         chain->Add("/alice/data/2016/LHC16q/000265377/pass1_CENT_wSDD/16000265377019.102/root_archive.zip#AliESDs.root");
+	// start the analysis locally, reading the events from the tchain
+        mgr->StartAnalysis("local", chain, 100);
     } else {
         // if we want to run on grid, we create and configure the plugin
         AliAnalysisAlien *alienHandler = new AliAnalysisAlien();
@@ -63,17 +85,21 @@ void runAnalysis()
         alienHandler->SetAnalysisSource("AliAnalysisTaskMyTask.cxx");
         // select the aliphysics version. all other packages
         // are LOADED AUTOMATICALLY!
-        alienHandler->SetAliPhysicsVersion("vAN-20180330-1");
+        alienHandler->SetAliPhysicsVersion("vAN-20190410-1");
         // set the Alien API version
         alienHandler->SetAPIVersion("V1.1x");
         // select the input data
-        alienHandler->SetGridDataDir("/alice/data/2011/LHC11h_2");
-        alienHandler->SetDataPattern("*ESDs/pass2/AOD145/*AOD.root");
-        // MC has no prefix, data has prefix 000
+        //alienHandler->SetGridDataDir("/alice/data/2011/LHC11h_2");  // need to add other paths
+        //alienHandler->SetDataPattern("*ESDs/pass2/AOD145/*AOD.root");
+        alienHandler->SetGridDataDir("/alice/data/2016/LHC16q/");
+	alienHandler->SetDataPattern("pass1_CENT_wSDD/*/*ESDs.root"); // 16000265377039.901
+
+	// MC has no prefix, data has prefix 000
         alienHandler->SetRunPrefix("000");
         // runnumber
-        alienHandler->AddRunNumber(167813);
-        // number of files per subjob
+        //alienHandler->AddRunNumber(167813);
+         alienHandler->AddRunNumber(265377);
+	// number of files per subjob
         alienHandler->SetSplitMaxInputFileNumber(40);
         alienHandler->SetExecutable("myTask.sh");
         // specify how many seconds your job may take
@@ -90,8 +116,8 @@ void runAnalysis()
         alienHandler->SetMergeViaJDL(kTRUE);
 
         // define the output folders
-        alienHandler->SetGridWorkingDir("myWorkingDir");
-        alienHandler->SetGridOutputDir("myOutputDir");
+        alienHandler->SetGridWorkingDir("myWorkingDir3");
+        alienHandler->SetGridOutputDir("myOutputDir3");
 
         // connect the alien plugin to the manager
         mgr->SetGridHandler(alienHandler);
