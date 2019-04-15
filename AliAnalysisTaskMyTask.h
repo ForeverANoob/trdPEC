@@ -27,6 +27,7 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
         AliESDEvent*            fESD;           //! input event
         TList*                  fOutputList;    //! output list
         TH1F*                   fHistPt;        //! dummy histogram
+	TH1F*			fhtrdpt;
 
 	TH1F*			fhdy;
 	TH1F*			fhy;
@@ -36,6 +37,7 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
 	TH1F*			fhPID;		// for the trd track
 	TH1F*			fhntl;    	// # of tracklets
 	TH2*			fhapt;		// A vs. Pt of the tracks
+	TH2*			fhtrdapt;	// A vs. Pt of trd tracks
 	TH1F*			fhtrf;		// flag numbers 
 
 

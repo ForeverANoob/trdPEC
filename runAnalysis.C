@@ -8,7 +8,7 @@
 void runAnalysis()
 {
     // set if you want to run the analysis locally (kTRUE), or on grid (kFALSE)
-    Bool_t local = kTRUE;
+    Bool_t local = kFALSE;
     // if you run on grid, specify test mode (kTRUE) or full grid model (kFALSE)
     Bool_t gridTest = kFALSE;
     
@@ -28,7 +28,6 @@ void runAnalysis()
     gSystem->Load("libVMC.so");
     gSystem->Load("libSTEERBase.so");
     gSystem->Load("libESD.so");
-    gSystem->Load("libAOD.so");
 
   // load analysis framework
   //   gSystem->Load("libANALYSIS");
@@ -113,11 +112,11 @@ void runAnalysis()
         // (see below) mode, set SetMergeViaJDL(kFALSE) 
         // to collect final results
         alienHandler->SetMaxMergeStages(1);
-        alienHandler->SetMergeViaJDL(kTRUE);
+        alienHandler->SetMergeViaJDL(kFALSE);
 
         // define the output folders
-        alienHandler->SetGridWorkingDir("myWorkingDir3");
-        alienHandler->SetGridOutputDir("myOutputDir3");
+        alienHandler->SetGridWorkingDir("myWorkingDir1");
+        alienHandler->SetGridOutputDir("myOutputDir1");
 
         // connect the alien plugin to the manager
         mgr->SetGridHandler(alienHandler);
@@ -129,7 +128,7 @@ void runAnalysis()
             mgr->StartAnalysis("grid");
         } else {
             // else launch the full grid analysis
-            alienHandler->SetRunMode("full");
+            alienHandler->SetRunMode("terminate");
             mgr->StartAnalysis("grid");
         }
     }

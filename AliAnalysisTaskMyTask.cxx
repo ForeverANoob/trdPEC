@@ -39,14 +39,16 @@ using namespace std;            // std namespace: so you can do things like 'cou
 ClassImp(AliAnalysisTaskMyTask) // classimp: necessary for root
 
 AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() : AliAnalysisTaskSE(), 
-    fESD(0), fOutputList(0), fHistPt(0), fhdy(0), fhy(0), fhz(0), fhpid(0), fhepid(0), fhPID(0), fhntl(0), fhapt(0), fhtrf(0)
+    fESD(0), fOutputList(0), fHistPt(0), fhtrdpt(0), fhdy(0), fhy(0), fhz(0), fhpid(0), 
+    fhepid(0), fhPID(0), fhntl(0), fhapt(0), fhtrdapt(0), fhtrf(0)
 {
     // default constructor, don't allocate memory here!
     // this is used by root for IO purposes, it needs to remain empty
 }
 //_____________________________________________________________________________
 AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTaskSE(name),
-    fESD(0), fOutputList(0), fHistPt(0), fhdy(0), fhy(0), fhz(0), fhpid(0), fhepid(0), fhPID(0), fhntl(0), fhapt(0), fhtrf(0)
+    fESD(0), fOutputList(0), fHistPt(0), fhtrdpt(0), fhdy(0), fhy(0), fhz(0), fhpid(0), 
+    fhepid(0), fhPID(0), fhntl(0), fhapt(0), fhtrdapt(0), fhtrf(0)
 {
     // constructor
     DefineInput(0, TChain::Class());    // define the input of the analysis: in this case we take a 'chain' of events
@@ -84,6 +86,7 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
 
     // example of a histogram
     fHistPt = new TH1F("fHistPt", "fHistPt", 100, 0, 10);       // create your histogra
+    fhtrdpt = new TH1F("fhtrdpt", "fhtrdpt", 100,0,10);
     fhdy = new TH1F("fhdy","fhdy",100,0,100);    
     fhy = new TH1F("fhy","fhy",100,0,10000); 
     fhz = new TH1F("fhz","fhz",100, 0, 100); 
@@ -91,12 +94,14 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     fhepid = new TH1F("fhepid","fhepid",280,0,280); 
     fhPID = new TH1F("fhPID","fhPID",280,0,280);
     fhntl = new TH1F("fhntl","fhntl", 7, 0, 7);
-    fhapt = new TH2F("fhapt","fhapt",10000,0,20000,1000,0,1000);
+    fhapt = new TH2F("fhapt","fhapt",10000,0,20000,2000,-500,500);
+    fhtrdapt = new TH2F("fhtrdapt","fhtrdapt",10000,0,20000,2000,-500,500);
     fhtrf = new TH1F("fhtrf","fhtrf",50,0,50);
 
 
     fOutputList->Add(fHistPt);          // don't forget to add it to the list! the list will be written to file, so if you want
                                         // your histogram in the output file, add it to the list!
+    fOutputList->Add(fhtrdpt);
     fOutputList->Add(fhdy); 
     fOutputList->Add(fhy);
     fOutputList->Add(fhz); 
@@ -104,7 +109,8 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     fOutputList->Add(fhepid);
     fOutputList->Add(fhPID);
     fOutputList->Add(fhntl);
-    fOutputList->Add(fhapt); 
+    fOutputList->Add(fhapt);
+    fOutputList->Add(fhtrdapt); 
     fOutputList->Add(fhtrf);
 
     PostData(1, fOutputList);           // postdata will notify the analysis manager of changes / updates to the 
@@ -132,16 +138,43 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     if(!fESD) return;                                   // if the pointer to the event is empty (getting it failed) skip this event
         // example part: i'll show how to loop over the tracks in an event 
         // and extract some information from them which we'll store in a histogram
-    Int_t iTracks(fESD->GetNumberOfTrdTracks());           // see how many tracks there are in the event
-    cout << "New event taken into consideration" << endl;
+    Int_t iTracks(fESD->GetNumberOfTracks());           // see how many tracks there are in the event
+    Int_t iTrdTracks( fESD->GetNumberOfTrdTracks());
+    //cout << "New event taken into consideration" << endl;
     cout << "Number of tracks " << fESD->GetNumberOfTracks() << endl;
     cout << "Number of trd tracks " << fESD->GetNumberOfTrdTracks() << endl;
     for(Int_t i(0); i < iTracks; i++) {                 // loop ove rall these tracks
 	AliESDtrack* track = static_cast<AliESDtrack*>(fESD->GetTrack(i));         // get a track (type AliAODTrack) from the event
-	AliESDTrdTrack* trdtrack = fESD->GetTrdTrack(i);	
+
 	
+	//AliESDTrdTrack* trdtrack = fESD->GetTrdTrack(i);	
+	
+	if (!track) continue;
+	// AliESDfriendTrack* friendtrack = (AliESDfriendTrack*)track->GetFriendTrack();
+	//fhapt->Fill(track->GetA(), track->Pt());
+	//if ( friendtrack->GetTRDtrack()) cout << "foound one!" << endl;	
+	//AliESDTrdTrack* trdtrack;
+	//if (track->GetTRDtrack()) {
+	//    cout << track->GetTRDtrack() << endl;
+	//}
+	//Int_t tmp = 0;
+	//for (Int_t index = 0; index < fESD->GetNumberOfTrdTracks(); index++){
+	//    trdtrack = fESD->GetTrdTrack(index);
+	//    if (trdtrack->GetPID() == track->GetPID()) {
+	//	tmp = index;
+	//	cout << "found one" << endl;
+	//	break;
+	//    }
+	//}
+	fHistPt->Fill(track->Pt());
+
+	if (i > iTrdTracks) continue;
+	AliESDTrdTrack* trdtrack = fESD->GetTrdTrack(i);
 	if (!trdtrack) continue;
-	
+	//if (tmp==0) continue;
+	cout << "Comparing tracks " << (trdtrack->Pt() == track->Pt()) << endl;
+	cout << track->GetTRDtrack() << "  " << trdtrack << endl;
+
 
 	Int_t tracklets = 0;  // layers of the trd?
 	for (Int_t j = 0; j < 6; j++){
@@ -152,9 +185,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	   fhpid->Fill(tracklet->GetPID());
 	   if (std::abs(fPIDResponse->NumberOfSigmasTPC(track, AliPID::kElectron)) > 3 ){
 	//	cout << "not an electron" << endl;
-		continue;
+		//continue;
 	   }		
- 	   cout << "Match trd track " << trdtrack->GetTrackMatch() << endl;	   
+ 	  // cout << "Match trd track " << trdtrack->GetTrackMatch() << endl;	   
 	   tracklets++;
 	   fhdy->Fill(tracklet->GetBinDy());
 	   fhy->Fill(tracklet->GetBinY());
@@ -162,18 +195,18 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	   fhepid->Fill(tracklet->GetPID());
 	  
 	   if (tracklet->GetPID() != trdtrack->GetPID()){ 
-	      cout << "PID values don't match "<< tracklet->GetPID() << " and " << trdtrack->GetPID() << endl; 
+	    //  cout << "PID values don't match "<< tracklet->GetPID() << " and " << trdtrack->GetPID() << endl; 
  	   
 }
 	}
-	cout << "a is here " << trdtrack->GetA() << endl;
-	cout << "Match trd track " << trdtrack->GetTrackMatch() << endl;	
-        fHistPt->Fill(track->Pt());                     // plot the pt value of the track in a histogram
-	fhapt->Fill(std::abs(trdtrack->GetA()), trdtrack->Pt());
+	//cout << "a is here " << trdtrack->GetA() << endl;
+	//cout << "Match trd track " << trdtrack->GetTrackMatch() << endl;	
+        fhtrdpt->Fill(track->Pt());                     // plot the pt value of the track in a histogram
+	fhtrdapt->Fill(trdtrack->GetA(), trdtrack->Pt());
 	fhntl->Fill(tracklets);
 	fhtrf->Fill(trdtrack->GetFlags());
 	fhPID->Fill(trdtrack->GetPID());
-	cout << "flags: dec " << std::dec << trdtrack->GetPID() << " and hexdec: " << std::hex << trdtrack->GetPID() << endl;
+	//cout << "flags: dec " << std::dec << trdtrack->GetPID() << " and hexdec: " << std::hex << trdtrack->GetPID() << endl;
     
 
 
