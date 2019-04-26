@@ -5,6 +5,10 @@
 *.com
 *.class
 *.dll
+*.jdl
+*.sh
+*.d
+*.so
 
 # Packages #
 ########################
@@ -13,3 +17,8 @@
 *.gz
 *.zip
 *.jar
+
+# Files #
+#######################
+myAnalysis.C
+myTask_merge.C

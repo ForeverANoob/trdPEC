@@ -92,6 +92,7 @@ void runAnalysis()
         //alienHandler->SetDataPattern("*ESDs/pass2/AOD145/*AOD.root");
         alienHandler->SetGridDataDir("/alice/data/2016/LHC16q/");
 	alienHandler->SetDataPattern("pass1_CENT_wSDD/*/*ESDs.root"); // 16000265377039.901
+	//alienHandler->SetDataPattern("pass1_CENT_wSDD/16000265377039.901/*ESDs.root"); 
 
 	// MC has no prefix, data has prefix 000
         alienHandler->SetRunPrefix("000");
@@ -112,11 +113,11 @@ void runAnalysis()
         // (see below) mode, set SetMergeViaJDL(kFALSE) 
         // to collect final results
         alienHandler->SetMaxMergeStages(1);
-        alienHandler->SetMergeViaJDL(kFALSE);
+        alienHandler->SetMergeViaJDL(kTRUE);
 
         // define the output folders
-        alienHandler->SetGridWorkingDir("myWorkingDir1");
-        alienHandler->SetGridOutputDir("myOutputDir1");
+        alienHandler->SetGridWorkingDir("myWorkingDir2");
+        alienHandler->SetGridOutputDir("myOutputDir2");
 
         // connect the alien plugin to the manager
         mgr->SetGridHandler(alienHandler);
@@ -128,7 +129,7 @@ void runAnalysis()
             mgr->StartAnalysis("grid");
         } else {
             // else launch the full grid analysis
-            alienHandler->SetRunMode("terminate");
+            alienHandler->SetRunMode("full");
             mgr->StartAnalysis("grid");
         }
     }

@@ -40,6 +40,19 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
 	TH2*			fhtrdapt;	// A vs. Pt of trd tracks
 	TH1F*			fhtrf;		// flag numbers 
 
+	// profile histograms
+	TH1F* 			fhpapt;
+	TH1F*			fhp1_5pt;
+	TH1F*			fhp2pt;
+	TH1F*			fhp2_5pt;
+	TH1F*			fhp3pt;
+	TH1F*			fhp3_5pt;
+	TH1F* 			fhpapte;
+	TH1F*			fhp1_5pte;
+	TH1F*			fhp2pte;
+	TH1F*			fhp2_5pte;
+	TH1F*			fhp3pte;
+	TH1F*			fhp3_5pte;
 
 	AliPIDResponse* fPIDResponse; //! pid response object
 
