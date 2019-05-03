@@ -21,33 +21,29 @@ void histMod(){
 	//TProfile hprof;
 	//TNuple ntuple;
 	//TFile* file = TFile::Open("DigitsExtractQA.root", "OLD");
-	TFile* file = new TFile("DigitsExtractQA.root", "READ");
+	//TFile* file = new TFile("AnalysisResults.root", "READ");
+	TFile* file = new TFile("ROOTMERGE-3506e898-6827-11e9-9717-51ea9e89beef.root", "READ");
 	file->ls();
 	//TFolder *histos = (TFolder*)(file->FindObjectAny("cdigitqa"));
 	//histos->FindObjectAny("fhpte")->Draw();
 	//file->cd("cdigitqa");
-	TList *lst = (TList*)(file->FindObjectAny("cdigitqa;1"));
-	TH2F* fhdEdxe = new TH2F("fhdEdxe","fhdEdxe",100, 0, 10, 100, 0, 10);
-	//TH2F* fhdEdxp = new TH2F("fhdEdxp","fhdEdxp",100,0,10,100,0,10);
-	cout << "I'm tired " << lst->FindObject("fhptp") << endl;
-	//C->Add(fhdEdxe);
-	//file->Add(fhdEdxe);
-	for (Int_t i=0;i<10000;i++){
-	    fhdEdxe->Fill(i*0.005, i*0.005);
-	    //cout << "hi" << endl;
-	}
-	//fhdEdxe->Draw();
-	//fhdEdxe->Write();	
-	//TFile file = new TFile("DigitsExtractQA.root");
+	TList *lst1 = (TList*)(file->FindObjectAny("MyTask;1"));
+	TList *lst = (TList*)(file->FindObjectAny("MyOutputContainer"));
+	
 	file->GetListOfKeys()->Print();
-
+	//gPad->SetLogy();
+	
 	// get your histograms here
-	TH2F* myHist = (TH2*)lst->FindObject("fhdEdx");
-	// 
+	TH2F* H1 = (TH2*)lst->FindObject("fhp2pt");
+	TH2F* H2 = (TH2*)lst->FindObject("fhp2pte");
 	// Now design your histogram
+	//gPad->SetLogy();
+	//for (Int_t i = 0; i < 400; i++){
+	//    H1[i] -= H2[i]
+	//}
 
-
-	myHist->Draw();
+	H2->Divide(H1);
+	H2->Draw();
 	
  	file->Close();
 	//

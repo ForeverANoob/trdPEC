@@ -53,6 +53,12 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
 	TH1F*			fhp2_5pte;
 	TH1F*			fhp3pte;
 	TH1F*			fhp3_5pte;
+	
+	TProfile*		fpp2pt;
+	TProfile*		fpp2_5pt;
+	TProfile*		fpp3pt;
+	TProfile*		fpp3_5pt;
+	TProfile*		fpp4pt;
 
 	AliPIDResponse* fPIDResponse; //! pid response object
 

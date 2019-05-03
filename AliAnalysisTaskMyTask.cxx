@@ -21,6 +21,7 @@
 
 #include "TChain.h"
 #include "TH1F.h"
+#include "TProfile.h"
 #include "TList.h"
 #include "AliAnalysisTask.h"
 #include "AliAnalysisManager.h"
@@ -41,7 +42,7 @@ ClassImp(AliAnalysisTaskMyTask) // classimp: necessary for root
 AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() : AliAnalysisTaskSE(), 
     fESD(0), fOutputList(0), fHistPt(0), fhtrdpt(0), fhdy(0), fhy(0), fhz(0), fhpid(0), 
     fhepid(0), fhPID(0), fhntl(0), fhapt(0), fhtrdapt(0), fhtrf(0), fhpapt(0), fhp1_5pt(0), fhp2pt(0), fhp2_5pt(0), fhp3pt(0),
-    fhp3_5pt(0), fhpapte(0), fhp1_5pte(0) ,fhp2pte(0), fhp2_5pte(0), fhp3pte(0), fhp3_5pte(0)
+    fhp3_5pt(0), fhpapte(0), fhp1_5pte(0) ,fhp2pte(0), fhp2_5pte(0), fhp3pte(0), fhp3_5pte(0), fpp2pt(0), fpp2_5pt(0), fpp3pt(0), fpp3_5pt(0), fpp4pt(0)
 
 {
     // default constructor, don't allocate memory here!
@@ -51,7 +52,11 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() : AliAnalysisTaskSE(),
 AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTaskSE(name),
     fESD(0), fOutputList(0), fHistPt(0), fhtrdpt(0), fhdy(0), fhy(0), fhz(0), fhpid(0), 
     fhepid(0), fhPID(0), fhntl(0), fhapt(0), fhtrdapt(0), fhtrf(0), fhpapt(0), fhp1_5pt(0), fhp2pt(0), fhp2_5pt(0), fhp3pt(0),
-    fhp3_5pt(0), fhpapte(0), fhp1_5pte(0), fhp2pte(0), fhp2_5pte(0), fhp3pte(0), fhp3_5pte(0)
+    fhp3_5pt(0), fhpapte(0), fhp1_5pte(0), fhp2pte(0), fhp2_5pte(0), fhp3pte(0), fhp3_5pte(0), fpp2pt(0), fpp2_5pt(0), fpp3pt(0), fpp3_5pt(0), fpp4pt(0)
+
+
+
+
 {
     // constructor
     DefineInput(0, TChain::Class());    // define the input of the analysis: in this case we take a 'chain' of events
@@ -102,20 +107,25 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     fhtrf    = new TH1F("fhtrf","fhtrf",50,0,50);
     
     // profile histogram
-    fhpapt   = new TH1F("fhpapt","fhpapt",400,-10,10);
-    fhp1_5pt = new TH1F("fhp1_5pt","fhp1_5pt",400,-10,10);
-    fhp2pt   = new TH1F("fhp2pt","fhp2pt",400,-10,10);
-    fhp2_5pt = new TH1F("fhp2_5pt","fhp2_5pt",400,-10,10);
-    fhp3pt   = new TH1F("fhp3pt","fhp3pt",400,-10,10);
-    fhp3_5pt = new TH1F("fhp3_5pt","fhp3_5pt",400,-10,10);
+    fhpapt   = new TH1F("fhpapt","fhpapt",400,-10,5);
+    fhp1_5pt = new TH1F("fhp1_5pt","fhp1_5pt",400,-10,5);
+    fhp2pt   = new TH1F("fhp2pt","fhp2pt",400,-10,5);
+    fhp2_5pt = new TH1F("fhp2_5pt","fhp2_5pt",400,-10,5);
+    fhp3pt   = new TH1F("fhp3pt","fhp3pt",400,-10,5);
+    fhp3_5pt = new TH1F("fhp3_5pt","fhp3_5pt",400,-10,5);
    
-    fhpapte  = new TH1F("fhpapte","fhpapte",400,-10,10);
-    fhp1_5pte= new TH1F("fhp1_5pte","fhp1_5pte",400,-10,10);
-    fhp2pte  = new TH1F("fhp2pte","fhp2pte",400,-10,10);
-    fhp2_5pte= new TH1F("fhp2_5pte","fhp2_5pte",400,-10,10);
-    fhp3pte  = new TH1F("fhp3pte","fhp3pte",400,-10,10);
-    fhp3_5pte= new TH1F("fhp3_5pte","fhp3_5pte",400,-10,10);
-    
+    fhpapte  = new TH1F("fhpapte","fhpapte",400,-10,5);
+    fhp1_5pte= new TH1F("fhp1_5pte","fhp1_5pte",400,-10,5);
+    fhp2pte  = new TH1F("fhp2pte","fhp2pte",400,-10,5);
+    fhp2_5pte= new TH1F("fhp2_5pte","fhp2_5pte",400,-10,5);
+    fhp3pte  = new TH1F("fhp3pte","fhp3pte",400,-10,5);
+    fhp3_5pte= new TH1F("fhp3_5pte","fhp3_5pte",400,-10,5);
+    fpp2pt   = new TProfile("fpp2pt",  "fpp2pt"  ,1000,-5,5,-5,5); 
+    fpp2_5pt = new TProfile("fpp2_5pt","fpp2_5pt",1000,-5,5,-5,5); 
+    fpp3pt   = new TProfile("fpp3pt",  "fpp3pt"  ,1000,-5,5,-5,5); 
+    fpp3_5pt = new TProfile("fpp3_5pt","fpp3_5pt",1000,-5,5,-5,5); 
+    fpp4pt   = new TProfile("fpp4pt",  "fpp4pt"  ,1000,-5,5,-5,5); 
+ 
     fOutputList->Add(fHistPt);          // don't forget to add it to the list! the list will be written to file, so if you want
                                         // your histogram in the output file, add it to the list!
     fOutputList->Add(fhtrdpt);
@@ -143,9 +153,12 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     fOutputList->Add(fhp2_5pte);
     fOutputList->Add(fhp3pte);
     fOutputList->Add(fhp3_5pte);
-
-
-
+    
+    fOutputList->Add(fpp2pt);		// TProfile
+    fOutputList->Add(fpp2_5pt);
+    fOutputList->Add(fpp3pt);
+    fOutputList->Add(fpp3_5pt);
+    fOutputList->Add(fpp4pt);
 
     PostData(1, fOutputList);           // postdata will notify the analysis manager of changes / updates to the 
                                         // fOutputList object. the manager will in the end take care of writing your output to file
@@ -172,11 +185,39 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     if(!fESD) return;                                   // if the pointer to the event is empty (getting it failed) skip this event
         // example part: i'll show how to loop over the tracks in an event 
         // and extract some information from them which we'll store in a histogram
+    
+    //fESD->GetVertex()->Print();
     Int_t iTracks(fESD->GetNumberOfTracks());           // see how many tracks there are in the event
     Int_t iTrdTracks( fESD->GetNumberOfTrdTracks());
-    //cout << "New event taken into consideration" << endl;
-    //cout << "Number of tracks " << fESD->GetNumberOfTracks() << endl;
-    //cout << "Number of trd tracks " << fESD->GetNumberOfTrdTracks() << endl;
+
+    cout << iTracks << "  " << iTrdTracks << endl; 
+    TList* VTracks = new TList();
+    for (Int_t i(0); i < iTrdTracks; i++){
+	VTracks->Add(fESD->GetTrdTrack(i)->GetTrackMatch());	
+	if (fESD->GetTrdTrack(i)->GetTrackMatch()==0) { cout << "screeeeam!!!! " << i << "  " << VTracks->At(i)  << endl;  }
+    }   
+  
+    //for (Int_t i(0); i < iTrdTracks; i++) cout << "check " << VTracks->At(i) << endl; 
+    //if (VTracks->At(0)==0) return;
+    for (Int_t i(0); i < iTracks; i++){	
+	Int_t j = 0;
+	while (1) {
+		
+	    if (j > iTrdTracks) break;
+	    if (VTracks->At(j)==0){ j++;  continue; }
+			
+	    if (fESD->GetTrack(i)==VTracks->At(j)) {
+		cout << "got a match " << i << "  " << j << "  " << fESD->GetTrack(i) << "   " << VTracks->At(j) << endl;	
+	        //cout << "vertex id " << (TString)(static_cast<AliESDtrack*>(fESD->GetTrack(i))->GetVertexID()) << endl;
+		//cout << fESD->GetTrack(i) << "  " << fESD->GetTrdTrack(j)->GetTrackMatch() << endl; 
+		cout << "get A " << fESD->GetTrdTrack(j)->GetA() << endl;
+
+	    }
+	    j++;
+	}
+	//cout << "kalitrack " << (static_cast<AliESDtrack*>(fESD->GetTrack(i))->GetConstrainedParam()==VTracks->At(0)) << endl;
+    }
+
     for(Int_t i(0); i < iTrdTracks; i++) {                 // loop ove rall these tracks
 	AliESDtrack* track = static_cast<AliESDtrack*>(fESD->GetTrack(i));         // get a track (type AliAODTrack) from the event
 
@@ -207,10 +248,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	   fhz->Fill(tracklet->GetBinZ());
 	   fhepid->Fill(tracklet->GetPID());
 	  
-	   if (tracklet->GetPID() != trdtrack->GetPID()){ 
-	    //  cout << "PID values don't match "<< tracklet->GetPID() << " and " << trdtrack->GetPID() << endl; 
- 	   
-}
+	   //if (tracklet->GetPID() != trdtrack->GetPID()){ 
+	   //    cout << "PID values don't match "<< tracklet->GetPID() << " and " << trdtrack->GetPID() << endl; 
+	   //}
 	}
 	//cout << "a is here " << trdtrack->GetA() << endl;
 	//cout << "Match trd track " << trdtrack->GetTrackMatch() << endl;	
@@ -225,20 +265,25 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	fhPID->Fill(trdtrack->GetPID());
 	//cout << "flags: dec " << std::dec << trdtrack->GetPID() << " and hexdec: " << std::hex << trdtrack->GetPID() << endl;
 	
-	Double_t diff = ( std::abs(trdtrack->Pt()) - std::abs(alivtrack->Pt()) )/std::abs(alivtrack->Pt());
+	//Double_t diff = ( std::abs(trdtrack->Pt()) - std::abs(alivtrack->Pt()) )/std::abs(alivtrack->Pt());
+	Double_t diff = ( trdtrack->Pt() - alivtrack->Pt() )/alivtrack->Pt();
 	fhpapt->Fill(diff);
+	//fpp2pt->Fill(alivtrack->Pt(), diff);
 	if (1.5 < std::abs(alivtrack->Pt()) & std::abs(alivtrack->Pt()) < 2){ fhp1_5pt->Fill(diff); }
-	if (2 < std::abs(alivtrack->Pt()) & std::abs(alivtrack->Pt()) < 2.5){ fhp2pt->Fill(diff); }
-    	if (2.5 < std::abs(alivtrack->Pt()) & std::abs(alivtrack->Pt()) < 3){ fhp2_5pt->Fill(diff); }
-    	if (3 < std::abs(alivtrack->Pt()) & std::abs(alivtrack->Pt()) < 3.5){ fhp3pt->Fill(diff); }
-    	if (3.5 < std::abs(alivtrack->Pt()) & std::abs(alivtrack->Pt()) < 4){ fhp3_5pt->Fill(diff); }
+	if (2 < std::abs(alivtrack->Pt()) & std::abs(alivtrack->Pt()) < 2.5){ fhp2pt->Fill(diff);    fpp2pt->Fill(alivtrack->Pt(), diff); }
+    	if (2.5 < std::abs(alivtrack->Pt()) & std::abs(alivtrack->Pt()) < 3){ fhp2_5pt->Fill(diff);  fpp2_5pt->Fill(alivtrack->Pt(), diff); }
+    	if (3 < std::abs(alivtrack->Pt()) & std::abs(alivtrack->Pt()) < 3.5){ fhp3pt->Fill(diff);    fpp3pt->Fill(alivtrack->Pt(), diff); }
+    	if (3.5 < std::abs(alivtrack->Pt()) & std::abs(alivtrack->Pt()) < 4){ fhp3_5pt->Fill(diff);  fpp3_5pt->Fill(alivtrack->Pt(), diff); }
+	if (4 <= std::abs(alivtrack->Pt())){ fpp4pt->Fill(alivtrack->Pt(), diff); }
+	//cout << "PID " << trdtrack->GetPID() << endl;
 
 	if (std::abs(fPIDResponse->NumberOfSigmasTPC(alivtrack, AliPID::kElectron)) > 3 ){
-	    cout << std::abs(fPIDResponse->NumberOfSigmasTPC(alivtrack, AliPID::kElectron)) << endl; 	
-	    cout << trdtrack->GetPID() << endl;
+	    //cout << std::abs(fPIDResponse->NumberOfSigmasTPC(alivtrack, AliPID::kElectron)) << endl; 	
+	    //cout << trdtrack->GetPID() << endl;
 	    continue;
 	}
-	
+	//if (fV0tags[i] != 11) continue;	
+	//cout << trdtrack->GetPID() << endl;
 	//cout << "momentum " << alivtrack->Pt() << "  " << trdtrack->Pt() << endl;    	
 	fhpapte->Fill(diff);
 	if (1.5 < std::abs(alivtrack->Pt()) & std::abs(alivtrack->Pt()) < 2){ fhp1_5pte->Fill(diff); }
@@ -257,6 +302,7 @@ void AliAnalysisTaskMyTask::Terminate(Option_t *)
 {
     // terminate
     // called at the END of the analysis (when all events are processed)
+ 
     cout << "This has ended" << endl;
 }
 //_____________________________________________________________________________
