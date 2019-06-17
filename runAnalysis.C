@@ -38,13 +38,16 @@ void runAnalysis()
     AliESDInputHandler* esdH = new AliESDInputHandler();
     mgr->SetInputEventHandler(esdH);
 
-
 #if !defined (__CINT__) || defined (__CLING__)
     AliAnalysisTaskMyTask *task = reinterpret_cast<AliAnalysisTaskMyTask*>();
     gInterpreter->ExecuteMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
+
+    gInterpreter->ExecuteMacro("\$ALICE_ROOT/ANALYSIS/ESDfilter/macros/AddTaskESDFilter.C");
 #else
     gROOT->LoadMacro("\$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
     AddTaskPIDResponse(); // *
+    
+    gROOT->LoadMacro("\$ALICE_ROOT/ANALYSIS/ESDfilter/macros/AddTaskESDFilter.C");
 #endif
 
        
@@ -129,7 +132,7 @@ void runAnalysis()
             mgr->StartAnalysis("grid");
         } else {
             // else launch the full grid analysis
-            alienHandler->SetRunMode("full");
+            alienHandler->SetRunMode("terminate");
             mgr->StartAnalysis("grid");
         }
     }

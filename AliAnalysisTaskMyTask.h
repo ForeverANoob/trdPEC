@@ -5,6 +5,7 @@
 #ifndef AliAnalysisTaskMyTask_H
 #define AliAnalysisTaskMyTask_H
 
+class AliESDHeader;
 class AliESDEvent;
 class AliTRDdigitsManager;
 class AliPIDResponse;
@@ -39,6 +40,13 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
 	TH2*			fhapt;		// A vs. Pt of the tracks
 	TH2*			fhtrdapt;	// A vs. Pt of trd tracks
 	TH1F*			fhtrf;		// flag numbers 
+	TH1F*			fhD;
+	TH1F* 			fhZ;
+	TH1F*			fhptg;
+	TH1F*			fhptm;
+	TH2*			fhphietag;
+	TH2*			fhphietam;
+
 
 	// profile histograms
 	TH1F* 			fhpapt;
@@ -53,7 +61,8 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
 	TH1F*			fhp2_5pte;
 	TH1F*			fhp3pte;
 	TH1F*			fhp3_5pte;
-	
+
+	TProfile*		fpapt;	
 	TProfile*		fpp2pt;
 	TProfile*		fpp2_5pt;
 	TProfile*		fpp3pt;
