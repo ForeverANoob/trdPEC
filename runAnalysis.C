@@ -8,7 +8,7 @@
 void runAnalysis()
 {
     // set if you want to run the analysis locally (kTRUE), or on grid (kFALSE)
-    Bool_t local = kTRUE;
+    Bool_t local = kFALSE;
     // if you run on grid, specify test mode (kTRUE) or full grid model (kFALSE)
     Bool_t gridTest = kFALSE;
     
@@ -30,7 +30,6 @@ void runAnalysis()
     gSystem->Load("libESD.so");
 
   // load analysis framework
-  //   gSystem->Load("libANALYSIS");
   //     gSystem->Load("libANALYSISalice");
   //
     // create the analysis manager
@@ -48,6 +47,8 @@ void runAnalysis()
     AddTaskPIDResponse(); // *
     
     gROOT->LoadMacro("\$ALICE_ROOT/ANALYSIS/ESDfilter/macros/AddTaskESDFilter.C");
+    AliAnalysisTaskESDfilter *esdfilter = AddTaskESDFilter();    
+    cout << "hello" << endl;
 #endif
 
        
@@ -56,9 +57,11 @@ void runAnalysis()
     // from root6, or the interpreter of root5
 #if !defined (__CINT__) || defined (__CLING__)
     gInterpreter->LoadMacro("AliAnalysisTaskMyTask.cxx++g");
+    //gInterpreter->LoadMacro("\$ALICE_ROOT/ANALYSIS/ESDfilter/AliAnalysisTaskESDfilter.cxx++g"); 
     AliAnalysisTaskMyTask *task = reinterpret_cast<AliAnalysisTaskMyTask*>(gInterpreter->ExecuteMacro("AddMyTask.C"));
 #else
     gROOT->LoadMacro("AliAnalysisTaskMyTask.cxx++g");
+    //gROOT->LoadMacro("\$ALICE_ROOT/ANALYSIS/ESDfilter/AliAnalysisTaskESDfilter.cxx++g");
     gROOT->LoadMacro("AddMyTask.C");
     AliAnalysisTaskMyTask *task = AddMyTask();
 #endif
@@ -116,11 +119,11 @@ void runAnalysis()
         // (see below) mode, set SetMergeViaJDL(kFALSE) 
         // to collect final results
         alienHandler->SetMaxMergeStages(1);
-        alienHandler->SetMergeViaJDL(kTRUE);
+        alienHandler->SetMergeViaJDL(kFALSE);
 
         // define the output folders
-        alienHandler->SetGridWorkingDir("myWorkingDir1");
-        alienHandler->SetGridOutputDir("myOutputDir1");
+        alienHandler->SetGridWorkingDir("myWorkDir2");
+        alienHandler->SetGridOutputDir("myOutputDir2");
 
         // connect the alien plugin to the manager
         mgr->SetGridHandler(alienHandler);

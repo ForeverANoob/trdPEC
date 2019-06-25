@@ -31,10 +31,12 @@
 #include "AliESDtrackCuts.h"
 //#include "AliESDHeader.h"
 #include "AliAnalysisTaskESDfilter.h"
+#include "AliESDtrackCuts.h"
 
 #include <iostream>
 
 class AliAnalysisTaskMyTask;    // your analysis class
+class AliAnalysisTaskESDfilter;
 class AliESD;
 class AliTRDdigitsExtract;
 
@@ -46,7 +48,8 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() : AliAnalysisTaskSE(),
     fESD(0), fOutputList(0), fHistPt(0), fhtrdpt(0), fhdy(0), fhy(0), fhz(0), fhpid(0), 
     fhepid(0), fhPID(0), fhntl(0), fhapt(0), fhtrdapt(0), fhtrf(0), fhD(0), fhZ(0), fhptg(0), fhptm(0), fhphietag(0),fhphietam(0),
     fhpapt(0), fhp1_5pt(0), fhp2pt(0), fhp2_5pt(0), fhp3pt(0),
-    fhp3_5pt(0), fhpapte(0), fhp1_5pte(0) ,fhp2pte(0), fhp2_5pte(0), fhp3pte(0), fhp3_5pte(0), 
+    fhp3_5pt(0), fhpapte(0), fhp1_5pte(0) ,fhp2pte(0), fhp2_5pte(0), fhp3pte(0), fhp3_5pte(0),
+    fhtwot(0), fhtott(0), fhtflg(0), fhtrdflg(0), fheflg(0), fhtrdeflg(0),
     fpapt(0), fpp2pt(0), fpp2_5pt(0), fpp3pt(0), fpp3_5pt(0), fpp4pt(0)
 
 {
@@ -59,6 +62,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
     fhepid(0), fhPID(0), fhntl(0), fhapt(0), fhtrdapt(0), fhtrf(0), fhD(0), fhZ(0), fhptg(0), fhptm(0), fhphietag(0), fhphietam(0),
     fhpapt(0), fhp1_5pt(0), fhp2pt(0), fhp2_5pt(0), fhp3pt(0),
     fhp3_5pt(0), fhpapte(0), fhp1_5pte(0), fhp2pte(0), fhp2_5pte(0), fhp3pte(0), fhp3_5pte(0), 
+    fhtwot(0), fhtott(0), fhtflg(0), fhtrdflg(0), fheflg(0), fhtrdeflg(0), 
     fpapt(0), fpp2pt(0), fpp2_5pt(0), fpp3pt(0), fpp3_5pt(0), fpp4pt(0)
 
 
@@ -125,8 +129,15 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     fhp2pt   = new TH1F("fhp2pt","fhp2pt",400,-5,5);
     fhp2_5pt = new TH1F("fhp2_5pt","fhp2_5pt",400,-5,5);
     fhp3pt   = new TH1F("fhp3pt","fhp3pt",400,-5,5);
-    fhp3_5pt = new TH1F("fhp3_5pt","fhp3_5pt",400,-5,5);
+    fhp3_5pt = new TH1F("fhp3_5pt","fhp3_5pt",400,-5,5); 
    
+    fhtwot   = new TH1F("fhtwot","fhtwot", 12, 0,12);
+    fhtott   = new TH1F("fhtott","fhtott", 12, 0, 12);  
+    fhtflg   = new TH1F("fhtflg","fhtflg",500000,0,5000000000);
+    fhtrdflg = new TH1F("fhtrdflg","fhtrdflg",500000,0,5000000000);
+    fheflg   = new TH1F("fheflg","fheflg", 500000,0,5000000000);
+    fhtrdeflg= new TH1F("fhtrdeflg","fhtrdeflg",500000,0,5000000000);
+
     fhpapte  = new TH1F("fhpapte","fhpapte",400,-5,5);
     fhp1_5pte= new TH1F("fhp1_5pte","fhp1_5pte",400,-5,5);
     fhp2pte  = new TH1F("fhp2pte","fhp2pte",400,-5,5);
@@ -172,7 +183,15 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     fOutputList->Add(fhp2_5pte);
     fOutputList->Add(fhp3pte);
     fOutputList->Add(fhp3_5pte);
-    
+
+    // flags
+    fOutputList->Add(fhtwot);    
+    fOutputList->Add(fhtott);
+    fOutputList->Add(fhtflg);
+    fOutputList->Add(fhtrdflg);
+    fOutputList->Add(fheflg);
+    fOutputList->Add(fhtrdeflg);
+
     fOutputList->Add(fpapt);
     fOutputList->Add(fpp2pt);		// TProfile
     fOutputList->Add(fpp2_5pt);
@@ -211,10 +230,12 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     cout << "trgger mask " << fESD->GetTriggerMask() << endl;
     cout << "trigger class " << (fESD->GetESDRun())->GetFiredTriggerClasses(fESD->GetTriggerMask()) << endl;
 
+    fhtwot->Fill(( fESD->GetESDRun() )->GetFiredTriggerClasses(fESD->GetTriggerMask()), 1);
+    Int_t tott = 1; 
     //fESD->GetVertex()->Print();
     Int_t iTracks(fESD->GetNumberOfTracks());           // see how many tracks there are in the event
-    Int_t iTrdTracks( fESD->GetNumberOfTrdTracks());
-     
+    Int_t iTrdTracks( fESD->GetNumberOfTrdTracks());    
+ 
     Int_t trig = 0;
     Int_t trigt= 0;
     for (Int_t i(0); i < iTracks; i++){
@@ -222,27 +243,55 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	//if (  ) trig += 1;
 	AliESDtrack* track = fESD->GetTrack(i);         // get a track (type AliAODTrack) from the event
 	if (!track) continue;
+	ULong_t flt = track->GetStatus();
 
+	cout << "filter " << flt << endl;
+	fhtflg->Fill(flt);
+        if (std::abs(fPIDResponse->NumberOfSigmasTPC(track, AliPID::kElectron)) < 3 ){
+	    fheflg->Fill(flt);
+	       	   //continue;
+	}	
+	//cout << ConvertToAOD(tracks) << endl;
+	//AliESDtrackCuts* esdTrackCutsL = AliESDtrackCuts::GetStandardTPCOnlyTrackCuts();
+	//cout << esdTrackCutsL->kNCuts() << endl;
+
+
+	//AliAnalysisFilter* trackFilter = new AliAnalysisFilter("trackFilter");
+	
+	//trackFilter->AddCuts(esdTrackCutsL);
+	//cout << trackFilter << endl;
+	//iAnalysisFilter* aafilter = GetTrackFilter();
 	//cout << "trigger class " << (fESD->GetESDRun())->GetTriggerClass(i) << endl;
 	//cout << "ESD " << AliAnalysisTaskESDfilter::GetTrackFilter() << endl;
+	//cout << AliAnalysisTaskESDfilter::V0s() << endl;
 
 	fhptg->Fill(track->Pt());
 	//cout << "Eta " << track->Eta() << " phi " << track->Phi() << endl;
 	
 	if (track->Pt() > 2) fhphietag->Fill(track->Phi(), track->Eta());	
 
+
+	////////////////////*   loop over trd tracks here   *//////////////////
 	for(Int_t j(0); j < iTrdTracks; j++) {                 // loop ove rall these tracks
 	    	
 	    //if (  ) trigt += 1; 
 	    AliESDTrdTrack* trdtrack = fESD->GetTrdTrack(j);	
 	
-	    if (!trdtrack) continue;
+	    if (!trdtrack) continue;    
+
+	    if (tott) { 
+		fhtott->Fill(( fESD->GetESDRun() )->GetFiredTriggerClasses(fESD->GetTriggerMask()), 1); 
+		tott = 0;
+	    }
+
 
 	    //cout << "flags first " << trdtrack->GetFlags() << endl;
 	    //fHistPt->Fill(track->Pt());
        	    AliVTrack* alivtrack = trdtrack->GetTrackMatch();
 	    if (alivtrack != track){ continue; }
 	   
+	    fhtrdflg->Fill(flt);	
+
 	    UShort_t shrt = trdtrack->GetFlags(); 
 	    UChar_t chr   = trdtrack->GetFlags();
 	    //cout << "flags " << (chr=='') << "   " << "%c"+trdtrack->GetFlags() << endl;
@@ -259,6 +308,26 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 
 	    cout << "get impact parameters " << D << "  " << Z << endl;
 
+	    cout << "here" << endl;
+
+	    if (std::abs(fPIDResponse->NumberOfSigmasTPC(track, AliPID::kElectron)) < 3 ){
+		  fhtrdeflg->Fill(flt);
+	       	   //continue;
+	    }	
+
+	    /*fV0cuts->SetEvent(event);
+            AliESDv0 *v0 = (AliESDv0 *) event->GetV0(iv0);
+
+   	    // Get the particle selection
+   	    Bool_t foundV0 = kFALSE;
+            Int_t pdgV0, pdgP, pdgN;
+            foundV0 = fV0cuts->ProcessV0(v0, pdgV0, pdgP, pdgN);
+            if(!foundV0) continue;
+            Int_t iTrackP = v0->GetPindex();  // positive track
+            Int_t iTrackN = v0->GetNindex();  // negative track
+   
+	    cout << iTrackP << endl;	   
+	    */
 	    Int_t tracklets = 0;  // layers of the trd?
 	    for (Int_t k = 0; k < 6; k++){
 		AliESDTrdTracklet* tracklet = trdtrack->GetTracklet(j);
@@ -329,6 +398,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
                                                         // the output manager which will take care of writing
                                                         // it to a file
 }
+
+
 //_____________________________________________________________________________
 void AliAnalysisTaskMyTask::Terminate(Option_t *)
 {

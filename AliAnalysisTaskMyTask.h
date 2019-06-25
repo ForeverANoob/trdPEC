@@ -61,6 +61,12 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
 	TH1F*			fhp2_5pte;
 	TH1F*			fhp3pte;
 	TH1F*			fhp3_5pte;
+	TH1F*			fhtwot;		// trigger class without trd track selection
+	TH1F*			fhtott;		// triggers only trd tracks
+	TH1F*			fhtflg;		// flags for all tracks
+	TH1F*			fhtrdflg;	// flags for trd tracks
+	TH1F* 			fheflg;	// flags for all electrons
+	TH1F* 			fhtrdeflg;	// flags for trd electrons
 
 	TProfile*		fpapt;	
 	TProfile*		fpp2pt;
